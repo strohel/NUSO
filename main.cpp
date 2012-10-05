@@ -17,6 +17,7 @@ using namespace Eigen;
 
 double dgemm_cblas(int n, int iterations);
 double dgemm_eigen(int n, int iterations);
+double dgemm_eigen_naive(int n, int iterations);
 
 int main() {
 	unsigned int i, j, n, iterations;
@@ -27,9 +28,9 @@ int main() {
 	           1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000};
 
 	// method names
-	const char *names[] = {"cblas", "Eigen"};
+	const char *names[] = {"cblas", "Eigen", "Eigen naive"};
 	// method functions
-	double (*functions[])(int, int) = {dgemm_cblas, dgemm_eigen};
+	double (*functions[])(int, int) = {dgemm_cblas, dgemm_eigen, dgemm_eigen_naive};
 
 	for(i = 0; i < ARR_SIZE(N); i++)
 	{
@@ -97,6 +98,29 @@ double dgemm_eigen(int n, int iterations)
 	for(i = 0; i < iterations; i++ )
 	{
 		c.noalias() = a * b;
+	}
+	return second() - t1;
+}
+
+double dgemm_eigen_naive(int n, int iterations)
+{
+	MatrixXd a(n, n), b(n, n), c(n, n);
+	int i, j;
+	double t1;
+
+	for(i = 0; i < n; i++)
+	{
+		for(j = 0; j < n; j++)
+		{
+			a(i, j) = i + j;
+			b(i, j) = i - j;
+		}
+	}
+
+	t1 = second();
+	for(i = 0; i < iterations; i++ )
+	{
+		c = a * b;
 	}
 	return second() - t1;
 }
