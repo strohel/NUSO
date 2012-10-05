@@ -18,12 +18,12 @@ CC = gcc
 .PHONY: clean
 
 # also a default target
-${program}: ${OBJ}
+$(program): $(OBJ)
 	$(CC) $(LDFLAGS) $^ -o $@
 
 # cleans files form compilation
 clean:
-	rm -f ${OBJ} dgemm-blas
+	rm -f ${OBJ} ${program}
 
 # every object file depends on all header files
 ${OBJ}: ${HEAD}
