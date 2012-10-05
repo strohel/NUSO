@@ -6,6 +6,7 @@ OBJ := $(patsubst %.cpp,%.o,$(SRC))
 
 # implicit switches for gcc
 CFLAGS = -O2 -march=native -pipe -Wall -Wextra
+CXXFLAGS = ${CFLAGS}
 
 # switches for linker
 LDFLAGS = -lcblas
