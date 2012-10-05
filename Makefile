@@ -19,7 +19,7 @@ CC = gcc
 
 # also a default target
 ${program}: ${OBJ}
-	$(CC) $(LDFLAGS) dgemm-blas.o second.o -o dgemm-blas
+	$(CC) $(LDFLAGS) $^ -o $@
 
 # cleans files form compilation
 clean:
