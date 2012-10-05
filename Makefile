@@ -5,7 +5,7 @@ SRC := $(wildcard *.c)
 OBJ := $(patsubst %.c,%.o,$(SRC))
 
 # implicit switches for gcc
-CFLAGS = -O2 -pipe -Wall -Wextra
+CFLAGS = -O2 -march=native -pipe -Wall -Wextra
 
 # switches for linker
 LDFLAGS = -lcblas
