@@ -2,7 +2,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <cblas.h>
+
+extern "C" {
+	#include <cblas.h>
+}
 
 #define ARR_SIZE(arr) (sizeof(arr)/sizeof(*arr))
 
@@ -16,7 +19,7 @@ int main() {
 	           1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000};
 
 	// method names
-	char *names[] = {"cblas"};
+	const char *names[] = {"cblas"};
 	// method functions
 	double (*functions[])(unsigned int, unsigned int) = {dgemm_blas};
 

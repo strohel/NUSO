@@ -1,8 +1,8 @@
 program = comparison
 
 HEAD := $(wildcard *.h)
-SRC := $(wildcard *.c)
-OBJ := $(patsubst %.c,%.o,$(SRC))
+SRC := $(wildcard *.cpp)
+OBJ := $(patsubst %.cpp,%.o,$(SRC))
 
 # implicit switches for gcc
 CFLAGS = -O2 -march=native -pipe -Wall -Wextra
@@ -11,8 +11,8 @@ CFLAGS = -O2 -march=native -pipe -Wall -Wextra
 LDFLAGS = -lcblas
 
 # compiler
-CC = gcc
-#CC = g++
+#CC = gcc
+CC = g++
 
 # clean does not have a file on its own
 .PHONY: clean
