@@ -6,27 +6,27 @@ OBJ := $(patsubst %.cpp,%.o,$(SRC))
 
 # implicit switches for gcc
 CFLAGS = -O2 -march=native -pipe -Wall -Wextra
-CXXFLAGS = ${CFLAGS}
+CXXFLAGS = $(CFLAGS)
 
 # switches for linker
 LDFLAGS = -lcblas
 
 # compiler
-#CC = gcc
-CC = g++
+#CXX = g++-4.6.3
+CC = $(CXX)
 
 # clean does not have a file on its own
 .PHONY: clean
 
 # also a default target
 $(program): $(OBJ)
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 # cleans files form compilation
 clean:
-	rm -f ${OBJ} ${program}
+	rm -f $(OBJ) $(program)
 
 # every object file depends on all header files
-${OBJ}: ${HEAD}
+$(OBJ): $(HEAD)
 
 # rest is done automagically by implicit rules
