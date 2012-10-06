@@ -38,9 +38,9 @@ int main() {
 	{
 		n = N[i];
 		gflop = 2.0*n*n*n/1000000000.0;
-		iterations = ((unsigned int) 10 / gflop) + 1;
-		iterations = iterations > 99999 ? 99999 : iterations;
-		printf("N = %4i; %5i iters;", n, iterations);
+		iterations = ((unsigned int) 5 / gflop) + 1;
+		iterations = iterations > 999999 ? 999999 : iterations;
+		printf("N = %4i; %6i iters;", n, iterations);
 
 		for(j = 0; j < ARR_SIZE(names); j++)
 		{
