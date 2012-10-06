@@ -18,6 +18,8 @@ using namespace Eigen;
 double dgemm_cblas(int n, int iterations);
 double dgemm_eigen_naive(int n, int iterations);
 double dgemm_eigen(int n, int iterations);
+double dgemm_eigen_templ(int n, int iterations);
+template <int compile_n> double dgemm_eigen_templ_impl(int n, int iterations);
 
 int main() {
 	unsigned int i, j, n, iterations;
@@ -28,9 +30,9 @@ int main() {
 	           1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000};
 
 	// method names
-	const char *names[] = {"cblas", "Eigen naive", "Eigen"};
+	const char *names[] = {"cblas", "Eigen-naive", "Eigen", "Eigen+templ"};
 	// method functions
-	double (*functions[])(int, int) = {dgemm_cblas, dgemm_eigen_naive, dgemm_eigen};
+	double (*functions[])(int, int) = {dgemm_cblas, dgemm_eigen_naive, dgemm_eigen, dgemm_eigen_templ};
 
 	for(i = 0; i < ARR_SIZE(N); i++)
 	{
@@ -105,6 +107,53 @@ double dgemm_eigen_naive(int n, int iterations)
 double dgemm_eigen(int n, int iterations)
 {
 	MatrixXd a(n, n), b(n, n), c(n, n);
+	int i, j;
+	double t1;
+
+	for(i = 0; i < n; i++)
+	{
+		for(j = 0; j < n; j++)
+		{
+			a(i, j) = i + j;
+			b(i, j) = i - j;
+		}
+	}
+
+	t1 = second();
+	for(i = 0; i < iterations; i++ )
+	{
+		c.noalias() = a * b;
+	}
+	return second() - t1;
+}
+
+double dgemm_eigen_templ(int n, int iterations)
+{
+	switch(n)
+	{
+		case 1:
+			return dgemm_eigen_templ_impl<1>(n, iterations);
+		case 2:
+			return dgemm_eigen_templ_impl<2>(n, iterations);
+		case 4:
+			return dgemm_eigen_templ_impl<4>(n, iterations);
+		case 8:
+			return dgemm_eigen_templ_impl<8>(n, iterations);
+		case 16:
+			return dgemm_eigen_templ_impl<16>(n, iterations);
+		case 32:
+			return dgemm_eigen_templ_impl<32>(n, iterations);
+		case 64:
+			return dgemm_eigen_templ_impl<64>(n, iterations);
+		default:
+			return dgemm_eigen_templ_impl<Dynamic>(n, iterations);
+	}
+}
+
+template <int compile_n>
+double dgemm_eigen_templ_impl(int n, int iterations)
+{
+	Matrix<double, compile_n, compile_n> a(n, n), b(n, n), c(n, n);
 	int i, j;
 	double t1;
 
