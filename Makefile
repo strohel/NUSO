@@ -9,7 +9,7 @@ CFLAGS = -O2 -march=native -pipe -Wall -Wextra
 CXXFLAGS = $(CFLAGS)
 
 # switches for linker
-LDFLAGS = -lcblas
+LDLIBS = -lcblas
 
 # compiler
 #CXX = g++-4.6.3
