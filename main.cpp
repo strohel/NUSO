@@ -8,7 +8,6 @@ extern "C" {
 	#include <cblas.h>
 }
 
-#define NDEBUG // To disable some checks in Eigen
 #include <eigen3/Eigen/Dense>
 
 #define ARR_SIZE(arr) (sizeof(arr)/sizeof(*arr))
@@ -25,7 +24,7 @@ int main() {
 	unsigned int i, j, n, iterations;
 	double time, gflop, gflops;
 
-	int N[] = {2, 4, 8, 16, 32, 64,
+	int N[] = {2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64,
 	           100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
 	           1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000};
 
@@ -39,8 +38,8 @@ int main() {
 		n = N[i];
 		gflop = 2.0*n*n*n/1000000000.0;
 		iterations = ((unsigned int) 5 / gflop) + 1;
-		iterations = iterations > 999999 ? 999999 : iterations;
-		printf("N = %4i; %6i iters;", n, iterations);
+		iterations = iterations > 9999999 ? 9999999 : iterations;
+		printf("N = %4i; %7i iters;", n, iterations);
 
 		for(j = 0; j < ARR_SIZE(names); j++)
 		{
@@ -131,22 +130,19 @@ double dgemm_eigen_templ(int n, int iterations)
 {
 	switch(n)
 	{
-		case 1:
-			return dgemm_eigen_templ_impl<1>(n, iterations);
-		case 2:
-			return dgemm_eigen_templ_impl<2>(n, iterations);
-		case 4:
-			return dgemm_eigen_templ_impl<4>(n, iterations);
-		case 8:
-			return dgemm_eigen_templ_impl<8>(n, iterations);
-		case 16:
-			return dgemm_eigen_templ_impl<16>(n, iterations);
-		case 32:
-			return dgemm_eigen_templ_impl<32>(n, iterations);
-		case 64:
-			return dgemm_eigen_templ_impl<64>(n, iterations);
-		default:
-			return dgemm_eigen_templ_impl<Dynamic>(n, iterations);
+		case 1: return dgemm_eigen_templ_impl<1>(n, iterations);
+		case 2: return dgemm_eigen_templ_impl<2>(n, iterations);
+		case 3: return dgemm_eigen_templ_impl<3>(n, iterations);
+		case 4: return dgemm_eigen_templ_impl<4>(n, iterations);
+		case 6: return dgemm_eigen_templ_impl<6>(n, iterations);
+		case 8: return dgemm_eigen_templ_impl<8>(n, iterations);
+		case 12: return dgemm_eigen_templ_impl<12>(n, iterations);
+		case 16: return dgemm_eigen_templ_impl<16>(n, iterations);
+		case 24: return dgemm_eigen_templ_impl<24>(n, iterations);
+		case 32: return dgemm_eigen_templ_impl<32>(n, iterations);
+		case 48: return dgemm_eigen_templ_impl<48>(n, iterations);
+		case 64: return dgemm_eigen_templ_impl<64>(n, iterations);
+		default: return dgemm_eigen_templ_impl<Dynamic>(n, iterations);
 	}
 }
 
