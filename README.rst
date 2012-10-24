@@ -18,7 +18,10 @@ Build
 Run
 ---
 
- * ``./comparison``
- * Save stats to `out.txt`: ``./comparison > out.txt``
+BLAS Matrix * Matrix multiply
+*****************************
+
+ * ``./dgemm``
+ * Save stats to `out.txt`: ``./dgemm > out.txt``
  * Vistualize stats (needs Python & matplotlib): ``./visualize.py out.txt``
- * Short-hand: ``./comparison | ./visualize.py``
+ * Short-hand: ``./dgemm | ./visualize.py``

@@ -1,5 +1,3 @@
-program = comparison
-
 HEAD := $(wildcard *.h)
 SRC := $(wildcard *.cpp)
 OBJ := $(patsubst %.cpp,%.o,$(SRC))
@@ -15,16 +13,20 @@ LDLIBS = -lcblas
 #CXX = g++-4.6.3
 CC = $(CXX)
 
+PROGRAMS = dgemm
+
 # clean does not have a file on its own
 .PHONY: clean
 
+all: $(PROGRAMS)
+
 # also a default target
-$(program): $(OBJ)
+dgemm: dgemm.o second.o
 	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 # cleans files form compilation
 clean:
-	rm -f $(OBJ) $(program)
+	rm -f $(OBJ) $(PROGRAMS)
 
 # every object file depends on all header files
 $(OBJ): $(HEAD)
