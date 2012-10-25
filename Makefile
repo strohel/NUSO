@@ -6,14 +6,11 @@ OBJ := $(patsubst %.cpp,%.o,$(SRC))
 CFLAGS = -O2 -march=native -pipe -Wall -Wextra
 CXXFLAGS = $(CFLAGS)
 
-# switches for linker
-LDLIBS = -lcblas
-
 # compiler
 #CXX = g++-4.6.3
 CC = $(CXX)
 
-PROGRAMS = dgemm
+PROGRAMS = dgemm dgesv
 
 # clean does not have a file on its own
 .PHONY: clean
@@ -22,7 +19,10 @@ all: $(PROGRAMS)
 
 # also a default target
 dgemm: dgemm.o second.o
-	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -lcblas -o $@
+
+dgesv: dgesv.o second.o
+	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -llapack -o $@
 
 # cleans files form compilation
 clean:

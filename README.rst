@@ -6,6 +6,7 @@ Requirements
 
  * CBLAS implementation (reference, ATLAS, MKL, ...) with cblas.h under /usr/include
    and linkable using -lcblas
+ * Fortran LAPACK implementation linkable as -llapack
  * Eigen 3 with headers insalled under /usr/include/eigen3
 
 Build
