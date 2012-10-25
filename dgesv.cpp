@@ -22,11 +22,12 @@ extern "C" {
 
 #define ARR_SIZE(arr) (sizeof(arr)/sizeof(*arr))
 
+using namespace Eigen;
 using namespace std;
 
 struct MyMatrix
 {
-	MyMatrix(int N_, int M_)
+	explicit MyMatrix(int N_ = 0, int M_ = 0)
 		: N(N_)
 		, M(M_)
 		, data(new double[N * M])
@@ -93,55 +94,60 @@ MyMatrix loadMatrix(const char *filename, int N)
 	return A;
 }
 
-double lapack(MyMatrix A, double *b, double *x);
-double lapack_expert(MyMatrix A, double *b, double *x);
+double lapack(MyMatrix A, double *b, double *x, int iters);
+double lapack_expert(MyMatrix A, double *b, double *x, int iters);
+double EigPartPivLU(MyMatrix A, double *b, double *x, int iters);
+double EigFullPivLU(MyMatrix A, double *b, double *x, int iters);
+double EigQR(MyMatrix A, double *b, double *x, int iters);
+double EigColPivQR(MyMatrix A, double *b, double *x, int iters);
+double EigFullPivQR(MyMatrix A, double *b, double *x, int iters);
 
 int main() {
-	MyMatrix A(1000, 1000);
-	unsigned int j, iterations;
-	double time, gflop, gflops;
-
-	double *x, *b;
-
-	// Nacteni matice
-	A = loadMatrix("p1000", 1000);
-	x = new double[A.M];
-	b = new double[A.N];
-
-	// Vypocet prave strany
-	for (int i=0; i<A.N; i++) {
-		b[i] = 0;
-		for (int j=0; j<A.M; j++)
-			b[i] += A[i][j];
-	}
-	cerr << "b[0]..b[2]: " << b[0] << " " << b[1] << " " << b[2] << endl;
+	int N[] = {100, 150, 200, 250, 300, 350, 400, 450, 500, 550,
+	           600, 650, 700, 750, 800, 850, 900, 950, 1000};
 
 	// method names
-	const char *names[] = {"lapack", "lapack-expert"};
+	const char *names[] = {"LAPACK", "LAPACK-Expert", "EigPartPivLU", "EigFullPivLU",
+			"EigQR", "EigColPivQR", "EigFullPivQR"};
 	// method functions
-	double (*functions[])(MyMatrix, double *, double *) = {lapack, lapack_expert};
+	double (*functions[])(MyMatrix, double *, double *, int) = {lapack, lapack_expert,
+			EigPartPivLU, EigFullPivLU, EigQR, EigColPivQR, EigFullPivQR};
 
-// 	gflop = 2.0*n*n*n/1000000000.0;
-// 	iterations = ((unsigned int) 5 / gflop) + 1;
-// 	iterations = iterations > 9999999 ? 9999999 : iterations;
-	gflop = 1; // TODO
-	int n = 1000;
-	iterations = 1; // TODO
-	printf("N = %4i; %7i iters;", n, iterations);
-
-	for(j = 0; j < ARR_SIZE(names); j++)
+	for(unsigned int i = 0; i < ARR_SIZE(N); i++)
 	{
-		time = functions[j](A, b, x);
-		gflops = iterations*gflop/time;
-		printf(" %s: %5.3lf s %5.2lf GFLOP/s;", names[j], time, gflops);
-		cerr << "x[0]..x[2]: " << x[0] << " " << x[1] << " " << x[2] << endl;
+		int n = N[i];
+
+		// Nacteni matice
+		MyMatrix A = loadMatrix("p1000", n);
+		double *x = new double[A.M];
+		double *b = new double[A.N];
+
+		// Vypocet prave strany
+		for (int i = 0; i < A.N; i++) {
+			b[i] = 0;
+			for (int j = 0; j < A.M; j++)
+				b[i] += A[i][j];
+		}
+		// cerr << "b[0]..b[2]: " << b[0] << " " << b[1] << " " << b[2] << endl;
+
+		double gflop = 1.0*n*n*n/1000000000.0; // TODO
+		int iterations = 1 / gflop + 1;
+		printf("N = %4i; %4i iters;", n, iterations);
+
+		for(unsigned int j = 0; j < ARR_SIZE(names); j++)
+		{
+			double time = functions[j](A, b, x, iterations);
+			double gflops = iterations*gflop/time;
+			printf(" %s: %5.3lf s %5.2lf GFLOP/s;", names[j], time, gflops);
+			// cerr << "x[0]..x[2]: " << x[0] << " " << x[1] << " " << x[2] << endl;
+		}
+		printf("\n");
 	}
-	printf("\n");
 	return 0;
 }
 
 double
-lapack(MyMatrix A, double *b, double *x)
+lapack(MyMatrix A, double *b, double *x, int iters)
 {
 	double t1;
 
@@ -149,12 +155,15 @@ lapack(MyMatrix A, double *b, double *x)
 
 	memcpy(x, b, A.N * sizeof(double));
 	t1 = second();
-	dgesv_(&A.N, &one, A.data, &A.N, ipvt, x, &A.N, &info);
+	for(int i = 0; i < iters; i++)
+	{
+		dgesv_(&A.N, &one, A.data, &A.N, ipvt, x, &A.N, &info);
+	}
 	return second() - t1;
 }
 
 double
-lapack_expert(MyMatrix A, double *b, double *x)
+lapack_expert(MyMatrix A, double *b, double *x, int iters)
 {
 	double t1, t2;
 
@@ -166,13 +175,101 @@ lapack_expert(MyMatrix A, double *b, double *x)
 	double r[A.N], c[A.N], rcond, ferr, berr, work[4*A.N], AF[A.N*A.N];
 
 	t1 = second();
-	dgesvx_(fact, trans, &A.N, &one, A.data, &A.N, AF, &A.N, 
-	        ipvt, &equed, r, c, b, &A.N, x, &A.N, &rcond, &ferr, &berr,
-	        work, iwork, &info);
+	for(int i = 0; i < iters; i++)
+	{
+		dgesvx_(fact, trans, &A.N, &one, A.data, &A.N, AF, &A.N, 
+		        ipvt, &equed, r, c, b, &A.N, x, &A.N, &rcond, &ferr, &berr,
+		        work, iwork, &info);
+	}
 	t2 = second();
 
-	cerr << "Info  = " << info << endl;
-	cerr << "rcond = " << rcond << endl;
-	cerr << "ferr  = " << ferr << endl;
+// 	cerr << "Info  = " << info << endl;
+// 	cerr << "rcond = " << rcond << endl;
+// 	cerr << "ferr  = " << ferr << endl;
 	return t2 - t1;
+}
+
+double
+EigPartPivLU(MyMatrix A, double *b, double *x, int iters)
+{
+	double t1;
+
+	Map<MatrixXd> A_(A.data, A.N, A.M);
+	Map<VectorXd> b_(b, A.N);
+	Map<VectorXd> x_(x, A.N);
+
+	t1 = second();
+	for(int i = 0; i < iters; i++)
+	{
+		x_ = A_.partialPivLu().solve(b_);
+	}
+	return second() - t1;
+}
+
+double
+EigFullPivLU(MyMatrix A, double *b, double *x, int iters)
+{
+	double t1;
+
+	Map<MatrixXd> A_(A.data, A.N, A.M);
+	Map<VectorXd> b_(b, A.N);
+	Map<VectorXd> x_(x, A.N);
+
+	t1 = second();
+	for(int i = 0; i < iters; i++)
+	{
+		x_ = A_.fullPivLu().solve(b_);
+	}
+	return second() - t1;
+}
+
+double
+EigQR(MyMatrix A, double *b, double *x, int iters)
+{
+	double t1;
+
+	Map<MatrixXd> A_(A.data, A.N, A.M);
+	Map<VectorXd> b_(b, A.N);
+	Map<VectorXd> x_(x, A.N);
+
+	t1 = second();
+	for(int i = 0; i < iters; i++)
+	{
+		x_ = A_.householderQr().solve(b_);
+	}
+	return second() - t1;
+}
+
+double
+EigColPivQR(MyMatrix A, double *b, double *x, int iters)
+{
+	double t1;
+
+	Map<MatrixXd> A_(A.data, A.N, A.M);
+	Map<VectorXd> b_(b, A.N);
+	Map<VectorXd> x_(x, A.N);
+
+	t1 = second();
+	for(int i = 0; i < iters; i++)
+	{
+		x_ = A_.colPivHouseholderQr().solve(b_);
+	}
+	return second() - t1;
+}
+
+double
+EigFullPivQR(MyMatrix A, double *b, double *x, int iters)
+{
+	double t1;
+
+	Map<MatrixXd> A_(A.data, A.N, A.M);
+	Map<VectorXd> b_(b, A.N);
+	Map<VectorXd> x_(x, A.N);
+
+	t1 = second();
+	for(int i = 0; i < iters; i++)
+	{
+		x_ = A_.fullPivHouseholderQr().solve(b_);
+	}
+	return second() - t1;
 }
