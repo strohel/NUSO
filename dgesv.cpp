@@ -137,10 +137,14 @@ int main() {
 		for(unsigned int j = 0; j < ARR_SIZE(names); j++)
 		{
 			double time = functions[j](A, b, x, iterations);
+
 			double gflops = iterations*gflop/time;
 			printf(" %s: %5.3lf s %5.2lf GFLOP/s;", names[j], time, gflops);
 			// cerr << "x[0]..x[2]: " << x[0] << " " << x[1] << " " << x[2] << endl;
 		}
+		delete[] x;
+		delete[] b;
+
 		printf("\n");
 	}
 	return 0;
@@ -159,6 +163,7 @@ lapack(MyMatrix A, double *b, double *x, int iters)
 	{
 		dgesv_(&A.N, &one, A.data, &A.N, ipvt, x, &A.N, &info);
 	}
+	delete[] ipvt;
 	return second() - t1;
 }
 
