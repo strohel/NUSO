@@ -159,18 +159,24 @@ int main() {
 double
 lapack(MyMatrix A, double *b, double *x, int iters)
 {
-	double t1;
+	double t1, t2;
 
 	int one = 1, info, *ipvt = new int[A.N];
+	double *A_work = new double[A.N * A.M];
 
-	memcpy(x, b, A.N * sizeof(double));
 	t1 = second();
 	for(int i = 0; i < iters; i++)
 	{
-		dgesv_(&A.N, &one, A.data, &A.N, ipvt, x, &A.N, &info);
+		// musi byt tady, jednoduchy dgesv prepise matici i pravou stranu
+		memcpy(A_work, A.data, A.N * A.M * sizeof(double));
+		memcpy(x, b, A.N * sizeof(double));
+		dgesv_(&A.N, &one, A_work, &A.N, ipvt, x, &A.N, &info);
 	}
+	t2 = second();
+
+	delete[] A_work;
 	delete[] ipvt;
-	return second() - t1;
+	return t2 - t1;
 }
 
 double
