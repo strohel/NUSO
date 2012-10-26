@@ -24,5 +24,5 @@ BLAS Matrix * Matrix multiply
 
  * ``./dgemm``
  * Save stats to `out.txt`: ``./dgemm > out.txt``
- * Vistualize stats (needs Python & matplotlib): ``./visualize.py out.txt``
- * Short-hand: ``./dgemm | ./visualize.py``
+ * Vistualize stats (needs Python & matplotlib): ``./visualize_dgemm.py out.txt``
+ * Short-hand: ``./dgemm | ./visualize_dgemm.py``
