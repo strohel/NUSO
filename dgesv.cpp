@@ -122,6 +122,9 @@ int main() {
 		double *x = new double[A.M];
 		double *b = new double[A.N];
 
+		// Eigen wrapper nad x, nekopiruje data, tedy "pohled" na vektor x
+		Map<ArrayXd> x_(x, A.M);
+
 		// Vypocet prave strany
 		for (int i = 0; i < A.N; i++) {
 			b[i] = 0;
@@ -133,14 +136,17 @@ int main() {
 		double gflop = 1.0*n*n*n/1000000000.0; // TODO
 		int iterations = 1 / gflop + 1;
 		printf("N = %4i; %4i iters;", n, iterations);
+		cout << flush;
 
 		for(unsigned int j = 0; j < ARR_SIZE(names); j++)
 		{
 			double time = functions[j](A, b, x, iterations);
+			// Eucleidian distance to precise solution:
+			double cum_error = sqrt((x_ - 1.0).pow(2.0).sum());
 
 			double gflops = iterations*gflop/time;
-			printf(" %s: %5.3lf s %5.2lf GFLOP/s;", names[j], time, gflops);
-			// cerr << "x[0]..x[2]: " << x[0] << " " << x[1] << " " << x[2] << endl;
+			printf(" %s: %.2le %5.2lf GFLOP/s;", names[j], cum_error, gflops);
+			cout << flush;
 		}
 		delete[] x;
 		delete[] b;
