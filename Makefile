@@ -5,6 +5,7 @@ OBJ := $(patsubst %.cpp,%.o,$(SRC))
 # implicit switches for gcc
 CFLAGS = -O3 -march=native -pipe -Wall -Wextra
 CXXFLAGS = $(CFLAGS)
+CPPFLAGS = -I/usr/include/eigen3
 
 # compiler
 #CXX = g++-4.6.3

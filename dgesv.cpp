@@ -18,7 +18,7 @@ extern "C" {
 	            double *work, int *iwork, int *info);
 }
 
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 
 #define ARR_SIZE(arr) (sizeof(arr)/sizeof(*arr))
 
