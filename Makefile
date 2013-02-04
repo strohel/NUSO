@@ -19,10 +19,10 @@ all: $(PROGRAMS)
 
 # also a default target
 dgemm: dgemm.o second.o
-	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -lcblas -o $@
+	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) $(shell pkg-config --libs cblas) -o $@
 
 dgesv: dgesv.o second.o
-	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -llapack -o $@
+	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) $(shell pkg-config --libs lapack) -o $@
 
 # cleans files form compilation
 clean:
